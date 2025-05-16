@@ -1,432 +1,575 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Smart Crop Recommendation System</title>
-    <link rel="icon" type="image/png" href="./static/plant.png" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-      :root {
-        --primary-color: #2ecc71;
-        --secondary-color: #27ae60;
-        --accent-color: #f1c40f;
-        --card-bg: #ffffff;
-        --hover-color: #3498db;
-      }
-
-      body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        min-height: 100vh;
-      }
-
-      .navbar {
-        background: linear-gradient(
-          90deg,
-          var(--primary-color),
-          var(--secondary-color)
-        );
-        padding: 1rem 0;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .navbar-brand {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .main-container {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        margin: 3rem auto;
-        max-width: 1200px;
-      }
-
-      .page-title {
-        color: var(--primary-color);
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        text-align: center;
-        position: relative;
-      }
-
-      .page-title::after {
-        content: "";
-        display: block;
-        width: 100px;
-        height: 4px;
-        background: var(--accent-color);
-        margin: 10px auto;
-        border-radius: 2px;
-      }
-
-      .input-card {
-        background: var(--card-bg);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-      }
-
-      .input-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border-color: var(--primary-color);
-      }
-
-      .input-section {
-        background: linear-gradient(145deg, #f8f9fa, #ffffff);
-        border-radius: 25px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-      }
-
-      .section-title {
-        color: var(--primary-color);
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .card-header-custom {
-        background: linear-gradient(
-          45deg,
-          var(--primary-color),
-          var(--secondary-color)
-        );
-        color: white;
-        padding: 1rem;
-        border-radius: 12px 12px 0 0;
-        text-align: center;
-        font-weight: 600;
-      }
-
-      .form-floating {
-        margin-bottom: 1rem;
-      }
-
-      .form-floating > label {
-        padding: 1rem;
-        color: #666;
-      }
-
-      .floating-input {
-        height: 60px !important;
-        background: #f8f9fa;
-        border: 2px solid transparent;
-        border-radius: 10px;
-        padding: 1rem;
-        transition: all 0.3s ease;
-      }
-
-      .floating-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
-        background: white;
-      }
-
-      .btn-predict {
-        background: linear-gradient(
-          45deg,
-          var(--primary-color),
-          var(--secondary-color)
-        );
-        color: white;
-        padding: 15px 50px;
-        border-radius: 30px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
-      }
-
-      .btn-predict:hover {
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
-      }
-      .result{
-        display: flex;
-      }
-
-      .result-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-radius: 20px;
-        border: none;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        max-width: 400px;
-        margin: 2rem auto;
-        text-align: center;
-      }
-
-      .result-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .result-image {
-        width: 150px;
-        height: 150px;
-        object-fit: contain;
-        margin: 1rem auto;
-        animation: float 3s ease-in-out infinite;
-      }
-
-      .result-title {
-        color: var(--primary-color);
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 1rem 0;
-      }
-
-      .result-text {
-        color: var(--secondary-color);
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin: 1rem 0;
-      }
-
-      @keyframes float {
-        0% {
-          transform: translateY(0px);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0f2e9, #f0fff4);
+            min-height: 100vh;
         }
-        50% {
-          transform: translateY(-10px);
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
-        100% {
-          transform: translateY(0px);
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-      }
-
-      @media (max-width: 768px) {
-        .main-container {
-          margin: 1rem;
-          padding: 1rem;
+        .glow {
+            transition: box-shadow 0.3s ease;
         }
-
-        .page-title {
-          font-size: 2rem;
+        @media (hover: hover) {
+            .glow:hover {
+                box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            }
         }
-
-        .input-section {
-          padding: 1rem;
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #22c55e;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: none;
         }
-      }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .table-row {
+            transition: all 0.2s ease;
+        }
+        @media (hover: hover) {
+            .table-row:hover {
+                background-color: #f0fff4;
+                transform: scale(1.01);
+            }
+        }
+        .prediction-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(209, 250, 229, 0.7));
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 1s ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.98); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .crop-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #22c55e;
+            transition: transform 0.3s ease;
+        }
+        @media (hover: hover) {
+            .crop-image:hover {
+                transform: scale(1.1);
+            }
+        }
+        @media (hover: hover) {
+            .prediction-card:hover {
+                box-shadow: 0 0 25px rgba(34, 197, 94, 0.7);
+            }
+        }
+        .pagination-button {
+            transition: all 0.2s ease;
+        }
+        @media (hover: hover) {
+            .pagination-button:hover:not(:disabled) {
+                background-color: #16a34a;
+                transform: scale(1.05);
+            }
+        }
+        .pagination-button:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .pagination-button.active {
+            background-color: #22c55e;
+            color: white;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 90%;
+            width: 600px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #374151;
+            transition: color 0.2s ease;
+        }
+        @media (hover: hover) {
+            .modal-close:hover {
+                color: #16a34a;
+            }
+        }
+        @media (max-width: 640px) {
+            .table-container {
+                padding: 0;
+            }
+            table {
+                display: none;
+            }
+            .mobile-readings {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .reading-card {
+                background: white;
+                border-radius: 0.75rem;
+                padding: 1rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease;
+            }
+            .reading-card:active {
+                transform: scale(0.98);
+            }
+            .reading-card h3 {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #15803d;
+                margin-bottom: 0.5rem;
+            }
+            .reading-card p {
+                font-size: 0.75rem;
+                color: #374151;
+                margin: 0.25rem 0;
+            }
+            .pagination-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            .crop-image {
+                width: 100px;
+                height: 100px;
+            }
+            .prediction-card {
+                padding: 1rem;
+            }
+            .modal-content {
+                width: 90%;
+                padding: 1rem;
+            }
+            .hamburger {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 1rem;
+                z-index: 20;
+            }
+            .nav-menu {
+                width: 100%;
+                background: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                margin-top: 3rem;
+            }
+        }
+        @media (min-width: 641px) {
+            .mobile-readings {
+                display: none;
+            }
+            .hamburger {
+                display: none;
+            }
+            .nav-menu {
+                max-height: none !important;
+                overflow: visible;
+            }
+        }
+        .nav-menu {
+            transition: max-height 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .nav-menu.hidden {
+            max-height: 0;
+        }
+        .flash-message {
+            animation: fadeOut 5s forwards;
+            animation-delay: 2s;
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; }
+        }
     </style>
-  </head>
-
-  <body>
-    <nav class="navbar navbar-expand-lg">
-      <div class="container">
-        <a class="navbar-brand" href="/">
-          <i class="fas fa-seedling me-2"></i>
-          Smart Crop Recommender
-        </a>
-      </div>
-    </nav>
-
-    <div class="main-container">
-      <h1 class="page-title">
-        <i class="fas fa-leaf me-2"></i>
-        Smart Crop Recommendation System
-      </h1>
-
-      <form action="/predict" method="POST">
-        <div class="input-section">
-          <h3 class="section-title">
-            <i class="fas fa-flask me-2"></i>
-            Soil Nutrients
-          </h3>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-leaf me-2"></i>
-                  Nitrogen (N)
+</head>
+<body class="text-gray-800">
+    <div class="container mx-auto px-2 sm:px-4 py-6 sm:max-w-7xl">
+        <header class="mb-6 sm:mb-8 fade-in relative">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600">Crop Recommendation System</h1>
+                <button class="hamburger ml-8 sm:hidden text-green-600 text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="nav-menu hidden sm:flex sm:items-center sm:space-x-4 w-full sm:w-auto absolute sm:static left-0">
+                    <p class="text-base sm:text-lg font-medium text-gray-600 text-center sm:text-left py-2 sm:py-0">Welcome, {{ username }}!</p>
+                    <a href="{{ url_for('logout') }}" class="text-green-500 hover:text-green-600 transition text-base sm:text-lg block text-center sm:inline-block py-2 sm:py-0">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
                 </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    class="form-control floating-input"
-                    id="Nitrogen"
-                    name="Nitrogen"
-                    placeholder="Enter Nitrogen"
-                    required
-                  />
-                  <label for="Nitrogen">Nitrogen Content</label>
-                </div>
-              </div>
             </div>
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-flask me-2"></i>
-                  Phosphorus (P)
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message p-4 mb-4 rounded-lg text-center fade-in
+                        {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="mb-6 sm:mb-8 fade-in">
+            <button onclick="requestNewReading()" class="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-600 transition glow w-full sm:w-auto">
+                <i class="fas fa-leaf mr-2"></i> New Sensor Reading
+            </button>
+            <div class="spinner mt-4 mx-auto sm:mx-0" id="loading"></div>
+            <p id="error" class="text-red-500 mt-2 text-sm sm:text-base text-center sm:text-left hidden"></p>
+        </section>
+
+        <section class="mb-8 sm:mb-12 fade-in">
+            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Latest Readings (EAT)</h2>
+            <div class="table-container overflow-x-auto shadow-lg rounded-lg sm:bg-white">
+                <table class="w-full bg-white rounded-lg">
+                    <thead class="bg-green-100">
+                        <tr>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Timestamp (EAT)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Temperature (°C)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Humidity (%)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">pH</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Nitrogen (ppm)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Phosphorus (ppm)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Potassium (ppm)</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Crop</th>
+                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="readingsTable">
+                        {% for reading in readings %}
+                        <tr class="table-row">
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.temperature) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.humidity) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.ph) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.nitrogen) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.phosphorus) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.potassium) }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ reading.crop | default('N/A') }}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">
+                                <button onclick="showReason('{{ reading._id }}')"
+                                        class="bg-green-500 text-white px-2 sm:px-3 py-1 rounded-lg hover:bg-green-600 transition text-xs sm:text-sm">
+                                    Reason
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mobile-readings">
+                    {% for reading in readings %}
+                    <div class="reading-card">
+                        <h3>Reading {{ loop.index }}</h3>
+                        <p><strong>Timestamp (EAT):</strong> {{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</p>
+                        <p><strong>Temperature:</strong> {{ "%.2f" | format(reading.temperature) }}°C</p>
+                        <p><strong>Humidity:</strong> {{ "%.2f" | format(reading.humidity) }}%</p>
+                        <p><strong>pH:</strong> {{ "%.2f" | format(reading.ph) }}</p>
+                        <p><strong>Nitrogen:</strong> {{ "%.2f" | format(reading.nitrogen) }}</p>
+                        <p><strong>Phosphorus:</strong> {{ "%.2f" | format(reading.phosphorus) }}</p>
+                        <p><strong>Potassium:</strong> {{ "%.2f" | format(reading.potassium) }}</p>
+                        <p><strong>Crop:</strong> {{ reading.crop | default('N/A') }}</p>
+                        <button onclick="showReason('{{ reading._id }}')"
+                                class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition text-sm mt-2">
+                            Reason
+                        </button>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    class="form-control floating-input"
-                    id="Phosporus"
-                    name="Phosporus"
-                    placeholder="Enter Phosphorus"
-                    required
-                  />
-                  <label for="Phosporus">Phosphorus Content</label>
-                </div>
-              </div>
             </div>
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-vial me-2"></i>
-                  Potassium (K)
-                </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    class="form-control floating-input"
-                    id="Potassium"
-                    name="Potassium"
-                    placeholder="Enter Potassium"
-                    required
-                  />
-                  <label for="Potassium">Potassium Content</label>
-                </div>
-              </div>
+            <div class="flex flex-wrap justify-center mt-4 gap-2">
+                <a href="{{ url_for('index', page=current_page-1) }}"
+                   class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base {{ 'pointer-events-none opacity-50' if current_page == 1 else '' }}"
+                   {{ 'disabled' if current_page == 1 else '' }}>
+                    Previous
+                </a>
+                {% for page_num in range(1, total_pages + 1) %}
+                    {% if page_num == current_page %}
+                        <a href="{{ url_for('index', page=page_num) }}"
+                           class="pagination-button active bg-green-500 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base">
+                            {{ page_num }}
+                        </a>
+                    {% elif (page_num >= current_page - 2 and page_num <= current_page + 2) or page_num == 1 or page_num == total_pages %}
+                        <a href="{{ url_for('index', page=page_num) }}"
+                           class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base">
+                            {{ page_num }}
+                        </a>
+                    {% elif page_num == current_page - 3 or page_num == current_page + 3 %}
+                        <span class="px-3 sm:px-4 py-1 sm:py-2 text-gray-700 text-sm sm:text-base">...</span>
+                    {% endif %}
+                {% endfor %}
+                <a href="{{ url_for('index', page=current_page+1) }}"
+                   class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base {{ 'pointer-events-none opacity-50' if current_page == total_pages else '' }}"
+                   {{ 'disabled' if current_page == total_pages else '' }}>
+                    Next
+                </a>
             </div>
-          </div>
+        </section>
+
+        {% if result %}
+        <section class="mb-8 sm:mb-12 fade-in">
+            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Prediction Result</h2>
+            <div class="prediction-card p-4 sm:p-6 flex flex-col items-center gap-4 sm:gap-6">
+                {% if crop %}
+                <img src="{{ url_for('static', filename=image_file) }}" alt="{{ crop }}"
+                     class="crop-image shadow-md"
+                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='default.png') }}'; console.error('Failed to load image: {{ image_file }}')">
+                <div class="flex-1 text-center sm:text-left">
+                    <h3 class="text-xl sm:text-2xl font-bold text-green-800 flex items-center justify-center sm:justify-start">
+                        <i class="fas fa-seedling mr-2 text-green-500"></i> {{ crop }}
+                    </h3>
+                    <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">{{ result }}</p>
+                    <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: {{ reason }}</p>
+                </div>
+                {% else %}
+                <div class="flex-1 text-center sm:text-left">
+                    <h3 class="text-xl sm:text-2xl font-bold text-green-800">No Crop Recommended</h3>
+                    <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">{{ result }}</p>
+                    <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: {{ reason }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="fade-in">
+            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Manual Prediction</h2>
+            <form method="POST" action="{{ url_for('predict') }}" class="bg-white p-4 sm:p-6 rounded-lg shadow-lg grid grid-cols-1 gap-4" id="predictForm">
+                <input type="hidden" name="page" value="{{ current_page }}">
+                <div>
+                    <label for="Nitrogen" class="block text-gray-600 font-medium text-sm sm:text-base">Nitrogen (ppm)</label>
+                    <input type="number" id="Nitrogen" name="Nitrogen" step="0.01" min="0" max="1000" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <label for="Phosporus" class="block text-gray-600 font-medium text-sm sm:text-base">Phosphorus (ppm)</label>
+                    <input type="number" id="Phosporus" name="Phosporus" step="0.01" min="0" max="1000" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <label for="Potassium" class="block text-gray-600 font-medium text-sm sm:text-base">Potassium (ppm)</label>
+                    <input type="number" id="Potassium" name="Potassium" step="0.01" min="0" max="1000" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <label for="Temperature" class="block text-gray-600 font-medium text-sm sm:text-base">Temperature (°C)</label>
+                    <input type="number" id="Temperature" name="Temperature" step="0.01" min="0" max="50" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <label for="Humidity" class="block text-gray-600 font-medium text-sm sm:text-base">Humidity (%)</label>
+                    <input type="number" id="Humidity" name="Humidity" step="0.01" min="0" max="100" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <label for="pH" class="block text-gray-600 font-medium text-sm sm:text-base">pH</label>
+                    <input type="number" id="pH" name="pH" step="0.01" min="0" max="14" required
+                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
+                </div>
+                <div>
+                    <button type="submit" class="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-600 transition glow w-full text-sm sm:text-base">
+                        <i class="fas fa-seedling mr-2"></i> Predict Crop
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Reason Modal -->
+        <div class="modal" id="reasonModal">
+            <div class="modal-content prediction-card p-4 sm:p-6">
+                <span class="modal-close" onclick="closeModal()">×</span>
+                <div id="modalContent" class="flex flex-col items-center gap-4 sm:gap-6">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
         </div>
-
-        <div class="input-section">
-          <h3 class="section-title">
-            <i class="fas fa-cloud-sun me-2"></i>
-            Environmental Factors
-          </h3>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-temperature-high me-2"></i>
-                  Temperature
-                </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control floating-input"
-                    id="Temperature"
-                    name="Temperature"
-                    placeholder="Enter Temperature"
-                    required
-                  />
-                  <label for="Temperature">Temperature (°C)</label>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-tint me-2"></i>
-                  Humidity
-                </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control floating-input"
-                    id="Humidity"
-                    name="Humidity"
-                    placeholder="Enter Humidity"
-                    required
-                  />
-                  <label for="Humidity">Humidity (%)</label>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="input-card">
-                <div class="card-header-custom">
-                  <i class="fas fa-vial me-2"></i>
-                  pH Level
-                </div>
-                <div class="form-floating mt-3">
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control floating-input"
-                    id="pH"
-                    name="pH"
-                    placeholder="Enter pH"
-                    required
-                  />
-                  <label for="pH">pH Value</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center mt-5">
-          <button type="submit" class="btn btn-predict btn-lg">
-            <i class="fas fa-seedling me-2"></i>
-            Get Crop Recommendation
-          </button>
-        </div>
-      </form>
-
-      {% if result %}
-      <div class="result">
-        <div class="result-card">
-          <img
-            src="{{ url_for('static', filename=image_file) }}"
-            class="result-image"
-            alt="Crop Image"
-          />
-          <div class="card-body">
-            <h5 class="result-title">Recommended Crop</h5>
-            <p class="result-text">
-              <i class="fas fa-check-circle me-2"></i>
-              {{ result }}
-            </p>
-          </div>
-        </div>
-        <div class="result-card">
-          <div class="card-body">
-            <h5 class="result-title">Reason for Recommendation</h5>
-            <p class="result-text">
-              <i class="fas fa-info-circle me-2"></i>
-              {{ reason }}
-            </p>
-          </div>
-        </div>
-      </div>
-      {% endif %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+    <script>
+        async function requestNewReading() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            
+            try {
+                const response = await fetch('/request_reading?page={{ current_page }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    window.location.href = `/?page={{ current_page }}`;
+                } else {
+                    const data = await response.json();
+                    error.textContent = data.error || 'Failed to fetch sensor data';
+                    error.style.display = 'block';
+                }
+            } catch (err) {
+                error.textContent = 'Network error: Unable to connect to server';
+                error.style.display = 'block';
+                console.error('Error:', err);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function showReason(readingId) {
+            const modal = document.getElementById('reasonModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            try {
+                const response = await fetch(`/get_reason/${readingId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    modalContent.innerHTML = `
+                        ${data.crop !== "Unknown" ? `
+                            <img src="/static/${data.image_file}" alt="${data.crop}"
+                                 class="crop-image shadow-md"
+                                 onerror="this.onerror=null; this.src='/static/default.png'; console.error('Failed to load image: ${data.image_file}')">
+                            <div class="flex-1 text-center sm:text-left">
+                                <h3 class="text-xl sm:text-2xl font-bold text-green-800 flex items-center justify-center sm:justify-start">
+                                    <i class="fas fa-seedling mr-2 text-green-500"></i> ${data.crop}
+                                </h3>
+                                <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">${data.result}</p>
+                                <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: ${data.reason}</p>
+                            </div>
+                        ` : `
+                            <div class="flex-1 text-center sm:text-left">
+                                <h3 class="text-xl sm:text-2xl font-bold text-green-800">No Crop Recommended</h3>
+                                <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">${data.result}</p>
+                                <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: ${data.reason}</p>
+                            </div>
+                        `}
+                    `;
+                    modal.style.display = 'flex';
+                } else {
+                    modalContent.innerHTML = `
+                        <div class="flex-1 text-center sm:text-left">
+                            <h3 class="text-xl sm:text-2xl font-bold text-green-800">Error</h3>
+                            <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">Failed to load reason</p>
+                            <p class="mt-3 text-gray-600 italic text-sm sm:text-base">${data.error}</p>
+                        </div>
+                    `;
+                    modal.style.display = 'flex';
+                }
+            } catch (err) {
+                modalContent.innerHTML = `
+                    <div class="flex-1 text-center sm:text-left">
+                        <h3 class="text-xl sm:text-2xl font-bold text-green-800">Error</h3>
+                        <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">Network error</p>
+                        <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Unable to load reason: ${err.message}</p>
+                    </div>
+                `;
+                modal.style.display = 'flex';
+                console.error('Error:', err);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('reasonModal');
+            modal.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('hidden');
+                const icon = hamburger.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.addEventListener('animationend', () => {
+                    if (message.style.opacity === '0') {
+                        message.remove();
+                    }
+                });
+            });
+
+            // Modal close on click outside or Esc key
+            const modal = document.getElementById('reasonModal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Form validation
+            const predictForm = document.getElementById('predictForm');
+            predictForm.addEventListener('submit', (e) => {
+                const inputs = predictForm.querySelectorAll('input[type="number"]');
+                let valid = true;
+                inputs.forEach(input => {
+                    const value = parseFloat(input.value);
+                    const min = parseFloat(input.min);
+                    const max = parseFloat(input.max);
+                    if (isNaN(value) || value < min || value > max) {
+                        valid = false;
+                        input.classList.add('border-red-500');
+                        input.classList.remove('focus:ring-green-500');
+                    } else {
+                        input.classList.remove('border-red-500');
+                        input.classList.add('focus:ring-green-500');
+                    }
+                });
+                if (!valid) {
+                    e.preventDefault();
+                    alert('Please enter valid values within the allowed ranges.');
+                }
+            });
+        });
+    </script>
+</body>
 </html>

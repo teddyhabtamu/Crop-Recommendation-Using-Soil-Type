@@ -1,0 +1,2 @@
+{"device_id":"device_001","temperature":24.6,"humidity":46.0,"ph":4,"nitrogen":29,"phosphorus":14,"potassium":28}
+
