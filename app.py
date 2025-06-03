@@ -5,6 +5,7 @@ import time
 from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import numpy as np
+import pandas as pd
 import pickle
 import pymongo
 from bson.objectid import ObjectId
@@ -71,11 +72,48 @@ try:
     
     model = pickle.load(open(os.path.join(base_dir, 'model.pkl'), 'rb'))
     sc = pickle.load(open(os.path.join(base_dir, 'standscaler.pkl'), 'rb'))
-    mx = pickle.load(open(os.path.join(base_dir, 'minmaxscaler.pkl'), 'rb'))
+    le = pickle.load(open(os.path.join(base_dir, 'labelencoder.pkl'), 'rb'))
     logging.info("ML models loaded successfully")
 except FileNotFoundError as e:
     logging.error(f"Failed to load ML model files: {e}")
     exit(1)
+
+# Crop dictionary (maps numerical labels to crop names)
+crop_dict = {
+    1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut", 6: "Papaya", 7: "Orange",
+    8: "Apple", 9: "Muskmelon", 10: "Watermelon", 11: "Grapes", 12: "Mango", 13: "Banana",
+    14: "Pomegranate", 15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
+    19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
+}
+
+# Recommendation function
+def recommendation(features):
+    try:
+        logging.info(f"Input features: {features}")
+        # Convert features to DataFrame with column names to match StandardScaler
+        feature_names = ['N', 'P', 'K', 'temperature', 'humidity', 'ph']
+        features_df = pd.DataFrame(features, columns=feature_names)
+        sc_features = sc.transform(features_df)
+        logging.info(f"Scaled features: {sc_features}")
+        probabilities = model.predict_proba(sc_features)[0]
+        logging.info(f"Probabilities: {probabilities}")
+        top_3_indices = np.argsort(probabilities)[-3:][::-1]
+        logging.info(f"Top 3 indices: {top_3_indices}")
+        
+        # Map indices to numerical labels using LabelEncoder
+        top_3_numerical = le.inverse_transform(top_3_indices)
+        logging.info(f"Top 3 numerical labels: {top_3_numerical}")
+        
+        # Map numerical labels to crop names using crop_dict
+        top_3_crops = [crop_dict.get(int(label), "Unknown") for label in top_3_numerical]
+        if "Unknown" in top_3_crops:
+            logging.error(f"Invalid labels in top_3_numerical: {top_3_numerical}")
+        
+        logging.info(f"Top 3 crops: {top_3_crops}")
+        return top_3_crops
+    except Exception as e:
+        logging.error(f"Error in recommendation: {str(e)}")
+        raise
 
 # User class for Flask-Login
 class User(UserMixin):
@@ -209,19 +247,17 @@ def index():
     total_readings = readings_collection.count_documents({"username": current_user.username})
     total_pages = (total_readings + per_page - 1) // per_page
     
-    # Get readings and convert timestamps to EAT
     readings = list(readings_collection.find({"username": current_user.username})
-               .sort("timestamp", -1)
-               .skip(skip)
-               .limit(per_page))
-    
-    # Convert UTC timestamps to EAT
+                   .sort("timestamp", -1)
+                   .skip(skip)
+                   .limit(per_page))
     eat = pytz.timezone('Africa/Nairobi')  # Same as Addis Ababa timezone
     for reading in readings:
         if reading['timestamp'].tzinfo is None:
             # If timestamp is naive, assume it's UTC
             reading['timestamp'] = pytz.utc.localize(reading['timestamp'])
         reading['timestamp'] = reading['timestamp'].astimezone(eat)
+
     
     return render_template("index.html", 
                          readings=readings, 
@@ -238,21 +274,24 @@ def get_reason(reading_id):
             logging.error(f"Reading {reading_id} not found or unauthorized")
             return jsonify({"error": "Reading not found or unauthorized"}), 404
         
-        crop = reading.get("crop", "Unknown")
-        reason = reading.get("reason", "No reason available.")
-        image_file = f"{crop.lower()}.png"
-        static_dir = os.path.join(base_dir, 'static')
-        if not os.path.exists(os.path.join(static_dir, image_file)):
-            image_file = "default.png"
-            logging.warning(f"Image not found, using default: {image_file}")
-        result = f"{crop} is the best crop to be cultivated." if crop != "Unknown" else "Could not determine the best crop."
+        crops = reading.get("crops", ["Unknown"])
+        reasons = reading.get("reasons", ["No reason available."] * len(crops))
+        image_files = []
+        for crop in crops:
+            image_file = f"{crop.lower()}.png"
+            static_dir = os.path.join(base_dir, 'static')
+            if not os.path.exists(os.path.join(static_dir, image_file)):
+                image_file = "default.png"
+                logging.warning(f"Image not found for {crop}, using default: {image_file}")
+            image_files.append(image_file)
         
-        logging.info(f"Fetched reason for reading {reading_id}: {reason}")
+        result = f"Top crops: {', '.join(crops)}" if crops != ["Unknown"] else "Could not determine the best crops."
+        zipped_results = list(zip(crops, image_files, reasons))
+        
+        logging.info(f"Fetched reasons for reading {reading_id}: {reasons}")
         return jsonify({
-            "crop": crop,
-            "image_file": image_file,
-            "result": result,
-            "reason": reason
+            "zipped_results": [{"crop": crop, "image": image, "reason": reason} for crop, image, reason in zipped_results],
+            "result": result
         })
     except Exception as e:
         logging.error(f"Error fetching reason for reading {reading_id}: {str(e)}")
@@ -262,7 +301,7 @@ def get_reason(reading_id):
 @login_required
 def request_reading():
     try:
-        # Send username to ESP32
+        # Request data from ESP32
         esp32_response = requests.post(
             esp32_url,
             json={"username": current_user.username},
@@ -270,20 +309,21 @@ def request_reading():
         )
         if esp32_response.status_code != 200:
             logging.error(f"ESP32 request failed with status {esp32_response.status_code}")
-            return jsonify({"error": f"Failed to get sensor data: {esp32_response.status_code}"}), 500
+            flash(f"Failed to get sensor data: {esp32_response.status_code}", "error")
+            return redirect(url_for('index', page=request.args.get('page', 1)))
 
         data = esp32_response.json()
         required_fields = ['username', 'temperature', 'humidity', 'ph', 'nitrogen', 'phosphorus', 'potassium']
         if not all(field in data for field in required_fields):
             logging.error(f"Invalid sensor data: {data}")
-            return jsonify({"error": "Invalid sensor data"}), 400
+            flash("Invalid sensor data", "error")
+            return redirect(url_for('index', page=request.args.get('page', 1)))
         if data['username'] != current_user.username:
             logging.error(f"Username mismatch: expected {current_user.username}, got {data['username']}")
-            return jsonify({"error": "Username mismatch"}), 401
+            flash("Username mismatch", "error")
+            return redirect(url_for('index', page=request.args.get('page', 1)))
 
-        # Prepare reading
         timestamp = datetime.now(timezone.utc)
-        logging.info(f"Storing reading with timestamp: {timestamp.strftime('%Y-%m-%d %I:%M %p %Z')}")
         reading = {
             "username": data['username'],
             "temperature": float(data['temperature']),
@@ -295,7 +335,7 @@ def request_reading():
             "timestamp": timestamp
         }
 
-        # Run ML prediction
+        # Generate prediction
         feature_list = [
             reading['nitrogen'], 
             reading['phosphorus'], 
@@ -305,41 +345,38 @@ def request_reading():
             reading['ph']
         ]
         single_pred = np.array(feature_list).reshape(1, -1)
-        mx_features = mx.transform(single_pred)
-        sc_mx_features = sc.transform(mx_features)
-        prediction = model.predict(sc_mx_features)
+        crops = recommendation(single_pred)
 
-        crop_dict = {
-            1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut", 6: "Papaya", 7: "Orange",
-            8: "Apple", 9: "Muskmelon", 10: "Watermelon", 11: "Grapes", 12: "Mango", 13: "Banana",
-            14: "Pomegranate", 15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
-            19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
-        }
-        crop = crop_dict.get(prediction[0], "Unknown")
-        image_file = f"{crop.lower()}.png"
-        
-        static_dir = os.path.join(base_dir, 'static')
-        if not os.path.exists(os.path.join(static_dir, image_file)):
-            image_file = "default.png"
-            logging.warning(f"Image not found, using default: {image_file}")
+        # Prepare images and reasons
+        image_files = []
+        for crop in crops:
+            image_file = f"{crop.lower()}.png"
+            static_dir = os.path.join(base_dir, 'static')
+            if not os.path.exists(os.path.join(static_dir, image_file)):
+                image_file = "default.png"
+                logging.warning(f"Image not found for {crop}, using default: {image_file}")
+            image_files.append(image_file)
 
-        reason = generate_reason(
-            crop, 
-            reading['nitrogen'], 
-            reading['phosphorus'], 
-            reading['potassium'],
-            reading['temperature'], 
-            reading['humidity'], 
-            reading['ph']
-        )
-        result = f"{crop} is the best crop to be cultivated."
+        reasons = [
+            generate_reason(
+                crop, 
+                reading['nitrogen'], 
+                reading['phosphorus'], 
+                reading['potassium'],
+                reading['temperature'], 
+                reading['humidity'], 
+                reading['ph']
+            ) for crop in crops
+        ]
+        result = f"Top crops: {', '.join(crops)}" if crops != ["Unknown"] else "Could not determine the best crops."
+        zipped_results = list(zip(crops, image_files, reasons))
 
-        # Save reading with predicted crop and reason
-        reading['crop'] = crop
-        reading['reason'] = reason
+        # Store reading with prediction
+        reading['crops'] = crops
+        reading['reasons'] = reasons
         readings_collection.insert_one(reading)
 
-        # Fetch updated readings for the current page
+        # Fetch updated readings for the table
         page = int(request.args.get('page', 1))
         per_page = 7
         skip = (page - 1) * per_page
@@ -350,13 +387,18 @@ def request_reading():
                        .skip(skip)
                        .limit(per_page))
 
-        # Render index.html with prediction and updated readings
+        # Localize timestamps to EAT
+        eat = pytz.timezone('Africa/Nairobi')
+        for reading in readings:
+            if reading['timestamp'].tzinfo is None:
+                reading['timestamp'] = pytz.utc.localize(reading['timestamp'])
+            reading['timestamp'] = reading['timestamp'].astimezone(eat)
+
+        # Render template with prediction results
         return render_template(
             'index.html',
             result=result,
-            crop=crop,
-            image_file=image_file,
-            reason=reason,
+            zipped_results=zipped_results,
             readings=readings,
             username=current_user.username,
             current_page=page,
@@ -386,30 +428,20 @@ def predict():
 
         feature_list = [N, P, K, temp, humidity, ph]
         single_pred = np.array(feature_list).reshape(1, -1)
-        mx_features = mx.transform(single_pred)
-        sc_mx_features = sc.transform(mx_features)
-        prediction = model.predict(sc_mx_features)
+        crops = recommendation(single_pred)
 
-        crop_dict = {
-            1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut", 6: "Papaya", 7: "Orange",
-            8: "Apple", 9: "Muskmelon", 10: "Watermelon", 11: "Grapes", 12: "Mango", 13: "Banana",
-            14: "Pomegranate", 15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
-            19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
-        }
-        crop = crop_dict.get(prediction[0], None)
-        image_file = f"{crop.lower()}.png" if crop else "default.png"
-        
-        static_dir = os.path.join(base_dir, 'static')
-        if not os.path.exists(os.path.join(static_dir, image_file)):
-            image_file = "default.png"
-            logging.warning(f"Image not found, using default: {image_file}")
+        image_files = []
+        for crop in crops:
+            image_file = f"{crop.lower()}.png"
+            static_dir = os.path.join(base_dir, 'static')
+            if not os.path.exists(os.path.join(static_dir, image_file)):
+                image_file = "default.png"
+                logging.warning(f"Image not found for {crop}, using default: {image_file}")
+            image_files.append(image_file)
 
-        if crop:
-            result = f"{crop} is the best crop to be cultivated."
-            reason = generate_reason(crop, N, P, K, temp, humidity, ph)
-        else:
-            result = "Could not determine the best crop."
-            reason = "Insufficient data for recommendation."
+        reasons = [generate_reason(crop, N, P, K, temp, humidity, ph) for crop in crops]
+        result = f"Top crops: {', '.join(crops)}" if crops != ["Unknown"] else "Could not determine the best crops."
+        zipped_results = list(zip(crops, image_files, reasons))
 
         timestamp = datetime.now(timezone.utc)
         logging.info(f"Storing manual prediction with timestamp: {timestamp.strftime('%Y-%m-%d %I:%M %p %Z')}")
@@ -421,8 +453,8 @@ def predict():
             "temperature": temp,
             "humidity": humidity,
             "ph": ph,
-            "crop": crop or "Unknown",
-            "reason": reason,
+            "crops": crops,
+            "reasons": reasons,
             "timestamp": timestamp
         })
 
@@ -435,30 +467,31 @@ def predict():
                        .skip(skip)
                        .limit(per_page))
         
-        # Convert UTC timestamps to EAT before rendering
         eat = pytz.timezone('Africa/Nairobi')
         for reading in readings:
             if reading['timestamp'].tzinfo is None:
                 reading['timestamp'] = pytz.utc.localize(reading['timestamp'])
             reading['timestamp'] = reading['timestamp'].astimezone(eat)
+
         
         return render_template(
             'index.html',
             result=result,
-            crop=crop,
-            image_file=image_file,
-            reason=reason,
+            zipped_results=zipped_results,
             readings=readings,
             username=current_user.username,
             current_page=page,
             total_pages=total_pages
         )
 
-
+    except ValueError as e:
+        logging.error(f"Input validation error: {str(e)}")
+        flash(f"Invalid input: Please enter valid numbers.", "error")
+        return redirect(url_for('index', page=request.form.get('page', 1)))
     except Exception as e:
         logging.error(f"Prediction error: {str(e)}")
-        flash(f"Prediction error: {str(e)}", "error")
-        return redirect(url_for('index'))
+        flash(f"Prediction failed: Unable to process input. Please try again.", "error")
+        return redirect(url_for('index', page=request.form.get('page', 1)))
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')

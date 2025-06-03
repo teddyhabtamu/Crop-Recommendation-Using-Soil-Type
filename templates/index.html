@@ -5,98 +5,237 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crop Recommendation System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #e0f2e9, #f0fff4);
-            min-height: 100vh;
+        :root {
+            --primary-color: #10b981;
+            --primary-hover: #059669;
+            --primary-light: #d1fae5;
+            --primary-dark: #047857;
+            --secondary-color: #f0fdf4;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --white: #ffffff;
+            --error: #ef4444;
+            --success: #10b981;
+            --transition: all 0.3s ease;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(229, 231, 235, 0.5);
         }
+
+        [data-theme="dark"] {
+            --background: #111827;
+            --text-dark: #f3f4f6;
+            --text-light: #9ca3af;
+            --card-bg: #1f2937;
+            --secondary-color: #374151;
+            --white: #1f2937;
+            --card-border: rgba(55, 65, 81, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        [data-theme="dark"] .btn-primary {
+            color: white !important;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            background: var(--white);
+            color: var(--text-dark);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
+
         @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(10px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        .glow {
-            transition: box-shadow 0.3s ease;
-        }
-        @media (hover: hover) {
-            .glow:hover {
-                box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
-            }
-        }
+
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #22c55e;
+            border: 3px solid rgba(16, 185, 129, 0.1);
+            border-left-color: var(--primary-color);
             border-radius: 50%;
             width: 24px;
             height: 24px;
             animation: spin 1s linear infinite;
             display: none;
         }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        .table-row {
-            transition: all 0.2s ease;
+
+        .table-container {
+            border-radius: 1rem;
+            overflow: hidden;
         }
-        @media (hover: hover) {
-            .table-row:hover {
-                background-color: #f0fff4;
-                transform: scale(1.01);
-            }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .table-row:last-child td {
+            border-bottom: none;
+        }
+
+        .pagination-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .pagination-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination-button:not(.active) {
+            background-color: #f3f4f6;
+            color: var(--text-dark);
+        }
+
+        .pagination-button:not(.active):hover {
+            background-color: #e5e7eb;
+        }
+
+        [data-theme="dark"] .pagination-button:not(.active) {
+            background-color: #374151;
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .pagination-button:not(.active):hover {
+            background-color: #4b5563;
+        }
+
         .prediction-card {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(209, 250, 229, 0.7));
-            backdrop-filter: blur(8px);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: pulse 1s ease-in-out;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border: 1px solid var(--card-border);
         }
-        @keyframes pulse {
-            0% { transform: scale(0.98); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+
+        .prediction-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
+
         .crop-image {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             object-fit: cover;
             border-radius: 50%;
-            border: 3px solid #22c55e;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        @media (hover: hover) {
-            .crop-image:hover {
-                transform: scale(1.1);
+
+        .crop-image:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .crop-image {
+                width: 100px;
+                height: 100px;
             }
         }
-        @media (hover: hover) {
-            .prediction-card:hover {
-                box-shadow: 0 0 25px rgba(34, 197, 94, 0.7);
-            }
-        }
-        .pagination-button {
-            transition: all 0.2s ease;
-        }
-        @media (hover: hover) {
-            .pagination-button:hover:not(:disabled) {
-                background-color: #16a34a;
-                transform: scale(1.05);
-            }
-        }
-        .pagination-button:disabled {
-            background-color: #d1d5db;
-            cursor: not-allowed;
-        }
-        .pagination-button.active {
-            background-color: #22c55e;
-            color: white;
-            font-weight: bold;
-        }
+
         .modal {
             display: none;
             position: fixed;
@@ -105,139 +244,310 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 50;
+            backdrop-filter: blur(4px);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
+
         .modal-content {
-            border-radius: 1.5rem;
-            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
             max-width: 90%;
             width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
             position: relative;
             animation: slideIn 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            color: var(--text-dark);
         }
+
         @keyframes slideIn {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
         .modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #374151;
-            transition: color 0.2s ease;
+            color: var(--text-light);
+            transition: var(--transition);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f3f4f6;
         }
-        @media (hover: hover) {
-            .modal-close:hover {
-                color: #16a34a;
-            }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+            color: var(--text-dark);
         }
-        @media (max-width: 640px) {
-            .table-container {
-                padding: 0;
+
+        .section-title {
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .flash-message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeOut 5s forwards;
+            animation-delay: 2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .flash-message.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .flash-message.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; }
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-hover);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: var(--transition);
+            padding: 0.5rem;
+            z-index: 50;
+        }
+
+        .hamburger:hover {
+            color: var(--primary-hover);
+            transform: rotate(90deg);
+        }
+
+        .hamburger:not(:hover) {
+            transform: rotate(0deg);
+        }
+
+        .mobile-readings {
+            display: none;
+        }
+
+        .theme-toggle {
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-hover);
+        }
+
+        .menu-overlay {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                z-index: 1001;
             }
+
+            .header-container {
+                padding-right: 3rem;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: var(--card-bg);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+                z-index: 40;
+            }
+
+            .nav-menu.show {
+                right: 0;
+            }
+
             table {
                 display: none;
             }
+
             .mobile-readings {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
             }
+
             .reading-card {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 0.75rem;
                 padding: 1rem;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                transition: transform 0.2s ease;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             }
-            .reading-card:active {
-                transform: scale(0.98);
-            }
-            .reading-card h3 {
-                font-size: 0.875rem;
-                font-weight: 600;
-                color: #15803d;
-                margin-bottom: 0.5rem;
-            }
-            .reading-card p {
-                font-size: 0.75rem;
-                color: #374151;
-                margin: 0.25rem 0;
-            }
-            .pagination-button {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-            }
-            .crop-image {
-                width: 100px;
-                height: 100px;
-            }
-            .prediction-card {
-                padding: 1rem;
-            }
+
             .modal-content {
-                width: 90%;
-                padding: 1rem;
+                width: 95%;
+                padding: 1.5rem;
             }
-            .hamburger {
-                position: absolute;
-                top: 0;
-                right: 0;
-                padding: 1rem;
-                z-index: 20;
+
+            h1 {
+                font-size: 1.5rem !important; /* text-2xl */
             }
-            .nav-menu {
-                width: 100%;
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                margin-top: 3rem;
+
+            .section-title {
+                font-size: 1.25rem !important; /* text-xl */
             }
         }
-        @media (min-width: 641px) {
-            .mobile-readings {
-                display: none;
-            }
+
+        @media (min-width: 769px) {
             .hamburger {
                 display: none;
             }
+
             .nav-menu {
                 max-height: none !important;
+                opacity: 1;
                 overflow: visible;
+                box-shadow: none;
+                background: transparent;
+                position: static;
+                padding: 0;
+            }
+
+            .menu-overlay {
+                display: none;
+            }
+
+            h1 {
+                font-size: 2.25rem !important; /* text-4xl */
+            }
+
+            .section-title {
+                font-size: 1.875rem !important; /* text-3xl */
+            }
+
+            .modal-content {
+                width: 800px;
             }
         }
-        .nav-menu {
-            transition: max-height 0.3s ease-in-out;
-            overflow: hidden;
+
+        [data-theme="dark"] .text-gray-600 {
+            color: #d1d5db !important;
         }
-        .nav-menu.hidden {
-            max-height: 0;
+
+        [data-theme="dark"] .text-emerald-800 {
+            color: #a7f3d0 !important;
         }
-        .flash-message {
-            animation: fadeOut 5s forwards;
-            animation-delay: 2s;
+
+        [data-theme="dark"] .text-gray-800 {
+            color: #e5e7eb !important;
         }
-        @keyframes fadeOut {
-            to { opacity: 0; height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; }
+
+        .reason-text {
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .modal-content .reason-text {
+            color: #ffffff !important;
         }
     </style>
 </head>
-<body class="text-gray-800">
-    <div class="container mx-auto px-2 sm:px-4 py-6 sm:max-w-7xl">
-        <header class="mb-6 sm:mb-8 fade-in relative">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600">Crop Recommendation System</h1>
-                <button class="hamburger ml-8 sm:hidden text-green-600 text-2xl focus:outline-none">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="nav-menu hidden sm:flex sm:items-center sm:space-x-4 w-full sm:w-auto absolute sm:static left-0">
-                    <p class="text-base sm:text-lg font-medium text-gray-600 text-center sm:text-left py-2 sm:py-0">Welcome, {{ username }}!</p>
-                    <a href="{{ url_for('logout') }}" class="text-green-500 hover:text-green-600 transition text-base sm:text-lg block text-center sm:inline-block py-2 sm:py-0">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+<body data-theme="light">
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="mb-8 fade-in relative">
+            <div class="flex justify-between items-center header-container">
+                <h1 class="text-4xl font-bold text-emerald-600 flex items-center gap-2">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Recommendation System</span>
+                </h1>
+                <div class="flex items-center gap-4">
+                    <button class="hamburger" aria-label="Menu" id="hamburgerBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="nav-menu" id="navMenu">
+                    <p class="text-gray-600 font-medium">Welcome, {{ username }}!</p>
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon"></i>
+                        <span>Toggle Theme</span>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
                     </a>
                 </div>
             </div>
@@ -246,53 +556,128 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="flash-message p-4 mb-4 rounded-lg text-center fade-in
-                        {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
-                        {{ message }}
+                    <div class="flash-message {{ 'success' if category == 'success' else 'error' }} fade-in">
+                        <i class="{{ 'fas fa-check-circle' if category == 'success' else 'fas fa-exclamation-circle' }}"></i>
+                        <span>{{ message }}</span>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <section class="mb-6 sm:mb-8 fade-in">
-            <button onclick="requestNewReading()" class="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-600 transition glow w-full sm:w-auto">
+        <section class="mb-8 fade-in">
+            <button onclick="requestNewReading()" class="btn-primary w-full sm:w-auto">
                 <i class="fas fa-leaf mr-2"></i> New Sensor Reading
             </button>
             <div class="spinner mt-4 mx-auto sm:mx-0" id="loading"></div>
-            <p id="error" class="text-red-500 mt-2 text-sm sm:text-base text-center sm:text-left hidden"></p>
+            <p id="error" class="text-red-500 mt-2 hidden"></p>
         </section>
 
-        <section class="mb-8 sm:mb-12 fade-in">
-            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Latest Readings (EAT)</h2>
-            <div class="table-container overflow-x-auto shadow-lg rounded-lg sm:bg-white">
-                <table class="w-full bg-white rounded-lg">
-                    <thead class="bg-green-100">
+        <section class="mb-10 fade-in">
+            <h2 class="section-title text-3xl">
+                <i class="fas fa-chart-line"></i>
+                <span>Manual Prediction</span>
+            </h2>
+            <form method="POST" action="{{ url_for('predict') }}" class="card p-6 grid grid-cols-1 md:grid-cols-2 gap-6" id="predictForm">
+                <input type="hidden" name="page" value="{{ current_page }}">
+                <div>
+                    <label for="Nitrogen" class="input-label">Nitrogen (ppm)</label>
+                    <input type="number" id="Nitrogen" name="Nitrogen" step="0.01" min="0" max="1000" required class="input-field">
+                </div>
+                <div>
+                    <label for="Phosporus" class="input-label">Phosphorus (ppm)</label>
+                    <input type="number" id="Phosporus" name="Phosporus" step="0.01" min="0" max="1000" required class="input-field">
+                </div>
+                <div>
+                    <label for="Potassium" class="input-label">Potassium (ppm)</label>
+                    <input type="number" id="Potassium" name="Potassium" step="0.01" min="0" max="1000" required class="input-field">
+                </div>
+                <div>
+                    <label for="Temperature" class="input-label">Temperature (°C)</label>
+                    <input type="number" id="Temperature" name="Temperature" step="0.01" min="0" max="50" required class="input-field">
+                </div>
+                <div>
+                    <label for="Humidity" class="input-label">Humidity (%)</label>
+                    <input type="number" id="Humidity" name="Humidity" step="0.01" min="0" max="100" required class="input-field">
+                </div>
+                <div>
+                    <label for="pH" class="input-label">pH</label>
+                    <input type="number" id="pH" name="pH" step="0.01" min="0" max="14" required class="input-field">
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="btn-primary w-full">
+                        <i class="fas fa-seedling mr-2"></i> Predict Crops
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {% if result %}
+        <section class="mb-10 fade-in">
+            <h2 class="section-title text-3xl">
+                <i class="fas fa-lightbulb"></i>
+                <span>Prediction Result</span>
+            </h2>
+            <div class="prediction-card">
+                {% if zipped_results %}
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+                    {% for crop, image_file, reason in zipped_results %}
+                    <div class="flex flex-col items-center text-center">
+                        <img src="{{ url_for('static', filename=image_file) }}" alt="{{ crop }}"
+                             class="crop-image"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='default.png') }}'; console.error('Failed to load image: {{ image_file }}')">
+                        <h3 class="text-lg font-bold text-emerald-800 flex items-center justify-center mt-3">
+                            <i class="fas fa-seedling mr-2 text-emerald-500"></i> {{ crop }}
+                        </h3>
+                        <p class="mt-2 text-gray-600 text-sm reason-text">{{ reason }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="text-lg font-medium text-gray-800 mt-6 text-center">{{ result }}</p>
+                {% else %}
+                <div class="text-center py-6">
+                    <h3 class="text-xl font-bold text-emerald-800">No Crops Recommended</h3>
+                    <p class="text-lg font-medium text-gray-800 mt-2">{{ result }}</p>
+                    <p class="mt-3 text-gray-600 italic reason-text">Reason: {{ reasons[0] }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="mb-10 fade-in">
+            <h2 class="section-title text-3xl">
+                <i class="fas fa-history"></i>
+                <span>Latest Readings (EAT)</span>
+            </h2>
+            <div class="table-container card">
+                <table>
+                    <thead>
                         <tr>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Timestamp (EAT)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Temperature (°C)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Humidity (%)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">pH</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Nitrogen (ppm)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Phosphorus (ppm)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Potassium (ppm)</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Crop</th>
-                            <th class="px-2 sm:px-4 py-2 sm:py-3 text-left text-green-700 font-semibold text-sm sm:text-base">Action</th>
+                            <th>Timestamp (EAT)</th>
+                            <th>Temperature (°C)</th>
+                            <th>Humidity (%)</th>
+                            <th>pH</th>
+                            <th>Nitrogen (ppm)</th>
+                            <th>Phosphorus (ppm)</th>
+                            <th>Potassium (ppm)</th>
+                            <th>Crops</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="readingsTable">
                         {% for reading in readings %}
                         <tr class="table-row">
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.temperature) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.humidity) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.ph) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.nitrogen) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.phosphorus) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ "%.2f" | format(reading.potassium) }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">{{ reading.crop | default('N/A') }}</td>
-                            <td class="px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base">
+                            <td>{{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</td>
+                            <td>{{ "%.2f" | format(reading.temperature) }}</td>
+                            <td>{{ "%.2f" | format(reading.humidity) }}</td>
+                            <td>{{ "%.2f" | format(reading.ph) }}</td>
+                            <td>{{ "%.2f" | format(reading.nitrogen) }}</td>
+                            <td>{{ "%.2f" | format(reading.phosphorus) }}</td>
+                            <td>{{ "%.2f" | format(reading.potassium) }}</td>
+                            <td>{{ reading.crops | join(', ') | default('N/A') }}</td>
+                            <td>
                                 <button onclick="showReason('{{ reading._id }}')"
-                                        class="bg-green-500 text-white px-2 sm:px-3 py-1 rounded-lg hover:bg-green-600 transition text-xs sm:text-sm">
+                                        class="btn-primary py-1 px-3 text-sm">
                                     Reason
                                 </button>
                             </td>
@@ -303,126 +688,62 @@
                 <div class="mobile-readings">
                     {% for reading in readings %}
                     <div class="reading-card">
-                        <h3>Reading {{ loop.index }}</h3>
-                        <p><strong>Timestamp (EAT):</strong> {{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</p>
-                        <p><strong>Temperature:</strong> {{ "%.2f" | format(reading.temperature) }}°C</p>
-                        <p><strong>Humidity:</strong> {{ "%.2f" | format(reading.humidity) }}%</p>
-                        <p><strong>pH:</strong> {{ "%.2f" | format(reading.ph) }}</p>
-                        <p><strong>Nitrogen:</strong> {{ "%.2f" | format(reading.nitrogen) }}</p>
-                        <p><strong>Phosphorus:</strong> {{ "%.2f" | format(reading.phosphorus) }}</p>
-                        <p><strong>Potassium:</strong> {{ "%.2f" | format(reading.potassium) }}</p>
-                        <p><strong>Crop:</strong> {{ reading.crop | default('N/A') }}</p>
-                        <button onclick="showReason('{{ reading._id }}')"
-                                class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition text-sm mt-2">
-                            Reason
-                        </button>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold text-emerald-700">Reading {{ loop.index }}</h3>
+                            <span class="text-xs text-gray-500">{{ reading.timestamp.strftime('%Y-%m-%d %I:%M %p EAT') }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <p><span class="font-medium">Temperature:</span> {{ "%.2f" | format(reading.temperature) }}°C</p>
+                            <p><span class="font-medium">Humidity:</span> {{ "%.2f" | format(reading.humidity) }}%</p>
+                            <p><span class="font-medium">pH:</span> {{ "%.2f" | format(reading.ph) }}</p>
+                            <p><span class="font-medium">Nitrogen:</span> {{ "%.2f" | format(reading.nitrogen) }}</p>
+                            <p><span class="font-medium">Phosphorus:</span> {{ "%.2f" | format(reading.phosphorus) }}</p>
+                            <p><span class="font-medium">Potassium:</span> {{ "%.2f" | format(reading.potassium) }}</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-100">
+                            <p><span class="font-medium">Crops:</span> {{ reading.crops | join(', ') | default('N/A') }}</p>
+                            <button onclick="showReason('{{ reading._id }}')"
+                                    class="btn-primary py-1 px-3 text-sm mt-2 w-full">
+                                View Details
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
-            <div class="flex flex-wrap justify-center mt-4 gap-2">
+            <div class="flex flex-wrap justify-center mt-6 gap-2">
                 <a href="{{ url_for('index', page=current_page-1) }}"
-                   class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base {{ 'pointer-events-none opacity-50' if current_page == 1 else '' }}"
+                   class="pagination-button {{ 'pointer-events-none opacity-50' if current_page == 1 else '' }}"
                    {{ 'disabled' if current_page == 1 else '' }}>
-                    Previous
+                    <i class="fas fa-chevron-left mr-1"></i> Previous
                 </a>
                 {% for page_num in range(1, total_pages + 1) %}
                     {% if page_num == current_page %}
                         <a href="{{ url_for('index', page=page_num) }}"
-                           class="pagination-button active bg-green-500 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base">
+                           class="pagination-button active">
                             {{ page_num }}
                         </a>
                     {% elif (page_num >= current_page - 2 and page_num <= current_page + 2) or page_num == 1 or page_num == total_pages %}
                         <a href="{{ url_for('index', page=page_num) }}"
-                           class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base">
+                           class="pagination-button">
                             {{ page_num }}
                         </a>
                     {% elif page_num == current_page - 3 or page_num == current_page + 3 %}
-                        <span class="px-3 sm:px-4 py-1 sm:py-2 text-gray-700 text-sm sm:text-base">...</span>
+                        <span class="px-3 py-2 text-gray-500">…</span>
                     {% endif %}
                 {% endfor %}
                 <a href="{{ url_for('index', page=current_page+1) }}"
-                   class="pagination-button bg-gray-200 text-gray-700 px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base {{ 'pointer-events-none opacity-50' if current_page == total_pages else '' }}"
+                   class="pagination-button {{ 'pointer-events-none opacity-50' if current_page == total_pages else '' }}"
                    {{ 'disabled' if current_page == total_pages else '' }}>
-                    Next
+                    Next <i class="fas fa-chevron-right ml-1"></i>
                 </a>
             </div>
         </section>
 
-        {% if result %}
-        <section class="mb-8 sm:mb-12 fade-in">
-            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Prediction Result</h2>
-            <div class="prediction-card p-4 sm:p-6 flex flex-col items-center gap-4 sm:gap-6">
-                {% if crop %}
-                <img src="{{ url_for('static', filename=image_file) }}" alt="{{ crop }}"
-                     class="crop-image shadow-md"
-                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='default.png') }}'; console.error('Failed to load image: {{ image_file }}')">
-                <div class="flex-1 text-center sm:text-left">
-                    <h3 class="text-xl sm:text-2xl font-bold text-green-800 flex items-center justify-center sm:justify-start">
-                        <i class="fas fa-seedling mr-2 text-green-500"></i> {{ crop }}
-                    </h3>
-                    <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">{{ result }}</p>
-                    <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: {{ reason }}</p>
-                </div>
-                {% else %}
-                <div class="flex-1 text-center sm:text-left">
-                    <h3 class="text-xl sm:text-2xl font-bold text-green-800">No Crop Recommended</h3>
-                    <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">{{ result }}</p>
-                    <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: {{ reason }}</p>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-        {% endif %}
-
-        <section class="fade-in">
-            <h2 class="text-xl sm:text-2xl font-semibold text-green-700 mb-4">Manual Prediction</h2>
-            <form method="POST" action="{{ url_for('predict') }}" class="bg-white p-4 sm:p-6 rounded-lg shadow-lg grid grid-cols-1 gap-4" id="predictForm">
-                <input type="hidden" name="page" value="{{ current_page }}">
-                <div>
-                    <label for="Nitrogen" class="block text-gray-600 font-medium text-sm sm:text-base">Nitrogen (ppm)</label>
-                    <input type="number" id="Nitrogen" name="Nitrogen" step="0.01" min="0" max="1000" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <label for="Phosporus" class="block text-gray-600 font-medium text-sm sm:text-base">Phosphorus (ppm)</label>
-                    <input type="number" id="Phosporus" name="Phosporus" step="0.01" min="0" max="1000" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <label for="Potassium" class="block text-gray-600 font-medium text-sm sm:text-base">Potassium (ppm)</label>
-                    <input type="number" id="Potassium" name="Potassium" step="0.01" min="0" max="1000" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <label for="Temperature" class="block text-gray-600 font-medium text-sm sm:text-base">Temperature (°C)</label>
-                    <input type="number" id="Temperature" name="Temperature" step="0.01" min="0" max="50" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <label for="Humidity" class="block text-gray-600 font-medium text-sm sm:text-base">Humidity (%)</label>
-                    <input type="number" id="Humidity" name="Humidity" step="0.01" min="0" max="100" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <label for="pH" class="block text-gray-600 font-medium text-sm sm:text-base">pH</label>
-                    <input type="number" id="pH" name="pH" step="0.01" min="0" max="14" required
-                           class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base">
-                </div>
-                <div>
-                    <button type="submit" class="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-600 transition glow w-full text-sm sm:text-base">
-                        <i class="fas fa-seedling mr-2"></i> Predict Crop
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Reason Modal -->
         <div class="modal" id="reasonModal">
-            <div class="modal-content prediction-card p-4 sm:p-6">
+            <div class="modal-content">
                 <span class="modal-close" onclick="closeModal()">×</span>
-                <div id="modalContent" class="flex flex-col items-center gap-4 sm:gap-6">
-                    <!-- Content will be populated by JavaScript -->
+                <div id="modalContent" class="flex flex-col items-center gap-6">
                 </div>
             </div>
         </div>
@@ -430,32 +751,71 @@
 
     <script>
         async function requestNewReading() {
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            loading.style.display = 'block';
-            error.style.display = 'none';
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const predictionSection = document.querySelector('.mb-10.fade-in:nth-of-type(2)'); // Selects Prediction Result section
+        const readingsTable = document.getElementById('readingsTable');
+        const mobileReadings = document.querySelector('.mobile-readings');
+        
+        loading.style.display = 'block';
+        error.style.display = 'none';
+        
+        try {
+            const response = await fetch('/request_reading?page={{ current_page }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
             
-            try {
-                const response = await fetch('/request_reading?page={{ current_page }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+            if (response.ok) {
+                // Parse the HTML response
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(await response.text(), 'text/html');
                 
-                if (response.ok) {
-                    window.location.href = `/?page={{ current_page }}`;
-                } else {
-                    const data = await response.json();
-                    error.textContent = data.error || 'Failed to fetch sensor data';
-                    error.style.display = 'block';
+                // Update Prediction Result section
+                const newPredictionSection = doc.querySelector('.mb-10.fade-in:nth-of-type(2)');
+                if (newPredictionSection) {
+                    predictionSection.innerHTML = newPredictionSection.innerHTML;
                 }
-            } catch (err) {
-                error.textContent = 'Network error: Unable to connect to server';
+                
+                // Update readings table
+                const newReadingsTable = doc.getElementById('readingsTable');
+                if (newReadingsTable) {
+                    readingsTable.innerHTML = newReadingsTable.innerHTML;
+                }
+                
+                // Update mobile readings
+                const newMobileReadings = doc.querySelector('.mobile-readings');
+                if (newMobileReadings) {
+                    mobileReadings.innerHTML = newMobileReadings.innerHTML;
+                }
+                
+                // Update pagination
+                const pagination = document.querySelector('.flex.flex-wrap.justify-center.mt-6');
+                const newPagination = doc.querySelector('.flex.flex-wrap.justify-center.mt-6');
+                if (pagination && newPagination) {
+                    pagination.innerHTML = newPagination.innerHTML;
+                }
+                
+                // Reattach event listeners for "Reason" buttons
+                document.querySelectorAll('button[onclick*="showReason"]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const readingId = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                        showReason(readingId);
+                    });
+                });
+            } else {
+                const data = await response.json();
+                error.textContent = data.error || 'Failed to fetch sensor data';
                 error.style.display = 'block';
-                console.error('Error:', err);
-            } finally {
-                loading.style.display = 'none';
             }
+        } catch (err) {
+            error.textContent = 'Network error: Unable to connect to server';
+            error.style.display = 'block';
+            console.error('Error:', err);
+        } finally {
+            loading.style.display = 'none';
         }
+    }
 
         async function showReason(readingId) {
             const modal = document.getElementById('reasonModal');
@@ -466,42 +826,50 @@
                 const data = await response.json();
                 if (response.ok) {
                     modalContent.innerHTML = `
-                        ${data.crop !== "Unknown" ? `
-                            <img src="/static/${data.image_file}" alt="${data.crop}"
-                                 class="crop-image shadow-md"
-                                 onerror="this.onerror=null; this.src='/static/default.png'; console.error('Failed to load image: ${data.image_file}')">
-                            <div class="flex-1 text-center sm:text-left">
-                                <h3 class="text-xl sm:text-2xl font-bold text-green-800 flex items-center justify-center sm:justify-start">
-                                    <i class="fas fa-seedling mr-2 text-green-500"></i> ${data.crop}
-                                </h3>
-                                <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">${data.result}</p>
-                                <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: ${data.reason}</p>
+                        ${data.zipped_results && data.zipped_results.length > 0 ? `
+                            <h3 class="text-xl font-bold text-emerald-800 mb-4 text-center">Crop Recommendations</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+                                ${data.zipped_results.map(item => `
+                                    <div class="flex flex-col items-center text-center">
+                                        <img src="/static/${item.image}" alt="${item.crop}"
+                                             class="crop-image"
+                                             onerror="this.onerror=null; this.src='/static/default.png'; console.error('Failed to load image: ${item.image}')">
+                                        <h3 class="text-lg font-bold text-emerald-800 flex items-center justify-center mt-3">
+                                            <i class="fas fa-seedling mr-2 text-emerald-500"></i> ${item.crop}
+                                        </h3>
+                                        <p class="mt-2 text-sm reason-text">${item.reason}</p>
+                                    </div>
+                                `).join('')}
                             </div>
+                            <p class="text-lg font-medium reason-text mt-6 text-center">${data.result}</p>
                         ` : `
-                            <div class="flex-1 text-center sm:text-left">
-                                <h3 class="text-xl sm:text-2xl font-bold text-green-800">No Crop Recommended</h3>
-                                <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">${data.result}</p>
-                                <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Reason: ${data.reason}</p>
+                            <div class="text-center py-6">
+                                <i class="fas fa-exclamation-circle text-amber-500 text-4xl mb-4"></i>
+                                <h3 class="text-xl font-bold text-emerald-800">No Crops Recommended</h3>
+                                <p class="text-lg font-medium reason-text mt-2">${data.result}</p>
+                                <p class="mt-3 text-sm italic reason-text">Reason: ${data.reasons?.[0] || 'No reason available'}</p>
                             </div>
                         `}
                     `;
                     modal.style.display = 'flex';
                 } else {
                     modalContent.innerHTML = `
-                        <div class="flex-1 text-center sm:text-left">
-                            <h3 class="text-xl sm:text-2xl font-bold text-green-800">Error</h3>
-                            <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">Failed to load reason</p>
-                            <p class="mt-3 text-gray-600 italic text-sm sm:text-base">${data.error}</p>
+                        <div class="text-center py-6">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                            <h3 class="text-xl font-bold text-red-600">Error</h3>
+                            <p class="text-lg font-medium reason-text mt-2">Failed to load reasons</p>
+                            <p class="mt-3 text-sm italic reason-text">${data.error}</p>
                         </div>
                     `;
                     modal.style.display = 'flex';
                 }
             } catch (err) {
                 modalContent.innerHTML = `
-                    <div class="flex-1 text-center sm:text-left">
-                        <h3 class="text-xl sm:text-2xl font-bold text-green-800">Error</h3>
-                        <p class="text-base sm:text-lg font-medium text-gray-800 mt-2">Network error</p>
-                        <p class="mt-3 text-gray-600 italic text-sm sm:text-base">Unable to load reason: ${err.message}</p>
+                    <div class="text-center py-6">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold text-red-600">Error</h3>
+                        <p class="text-lg font-medium reason-text mt-2">Network error</p>
+                        <p class="mt-3 text-sm italic reason-text">Unable to load reasons: ${err.message}</p>
                     </div>
                 `;
                 modal.style.display = 'flex';
@@ -514,16 +882,130 @@
             modal.style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburger = document.querySelector('.hamburger');
-            const navMenu = document.querySelector('.nav-menu');
-            hamburger.addEventListener('click', () => {
-                navMenu.classList.toggle('hidden');
-                const icon = hamburger.querySelector('i');
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        if (hamburgerBtn && navMenu) {
+            hamburgerBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('show');
+                menuOverlay.classList.toggle('show');
+                const icon = hamburgerBtn.querySelector('i');
+                
+                if (navMenu.classList.contains('show')) {
+                    icon.classList.replace('fa-bars', 'fa-times');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    icon.classList.replace('fa-times', 'fa-bars');
+                    document.body.style.overflow = '';
+                    hamburgerBtn.style.transform = 'rotate(0deg)';
+                }
             });
 
+            menuOverlay.addEventListener('click', () => {
+                navMenu.classList.remove('show');
+                menuOverlay.classList.remove('show');
+                hamburgerBtn.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                document.body.style.overflow = '';
+                hamburgerBtn.style.transform = 'rotate(0deg)';
+            });
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Save theme to localStorage
+            
+            const icon = document.querySelector('.theme-toggle i');
+            document.documentElement.style.transition = 'background-color 0.3s ease';
+            
+            if (newTheme === 'dark') {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+            
+            setTimeout(() => {
+                document.documentElement.style.transition = '';
+            }, 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load theme from localStorage
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const icon = document.querySelector('.theme-toggle i');
+            if (savedTheme === 'dark') {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+
+            const modal = document.getElementById('reasonModal');
+            window.addEventListener('click', e => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            const predictForm = document.getElementById('predictForm');
+            if (predictForm) {
+                predictForm.addEventListener('submit', e => {
+                    const inputs = predictForm.querySelectorAll('input[type="number"]');
+                    let valid = true;
+                    
+                    inputs.forEach(input => {
+                        const value = parseFloat(input.value);
+                        const min = parseFloat(input.min);
+                        const max = parseFloat(input.max);
+                        
+                        if (isNaN(value) || value < min || value > max) {
+                            valid = false;
+                            input.classList.add('border-red-500');
+                            input.classList.remove('focus:ring-emerald-500');
+                            input.classList.add('focus:ring-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                            input.classList.remove('focus:ring-red-500');
+                            input.classList.add('focus:ring-emerald-500');
+                        }
+                    });
+                    
+                    if (!valid) {
+                        e.preventDefault();
+                        alert('Please enter valid values within the allowed ranges.');
+                    }
+                });
+                
+                const inputs = predictForm.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        const value = parseFloat(input.value);
+                        const min = parseFloat(input.min);
+                        const max = parseFloat(input.max);
+                        
+                        if (isNaN(value) || value < min || value > max) {
+                            input.classList.add('border-red-500');
+                            input.classList.remove('focus:ring-emerald-500');
+                            input.classList.add('focus:ring-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                            input.classList.remove('focus:ring-red-500');
+                            input.classList.add('focus:ring-emerald-500');
+                        }
+                    });
+                });
+            }
+            
             const flashMessages = document.querySelectorAll('.flash-message');
             flashMessages.forEach(message => {
                 message.addEventListener('animationend', () => {
@@ -531,43 +1013,6 @@
                         message.remove();
                     }
                 });
-            });
-
-            // Modal close on click outside or Esc key
-            const modal = document.getElementById('reasonModal');
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
-            });
-
-            // Form validation
-            const predictForm = document.getElementById('predictForm');
-            predictForm.addEventListener('submit', (e) => {
-                const inputs = predictForm.querySelectorAll('input[type="number"]');
-                let valid = true;
-                inputs.forEach(input => {
-                    const value = parseFloat(input.value);
-                    const min = parseFloat(input.min);
-                    const max = parseFloat(input.max);
-                    if (isNaN(value) || value < min || value > max) {
-                        valid = false;
-                        input.classList.add('border-red-500');
-                        input.classList.remove('focus:ring-green-500');
-                    } else {
-                        input.classList.remove('border-red-500');
-                        input.classList.add('focus:ring-green-500');
-                    }
-                });
-                if (!valid) {
-                    e.preventDefault();
-                    alert('Please enter valid values within the allowed ranges.');
-                }
             });
         });
     </script>
