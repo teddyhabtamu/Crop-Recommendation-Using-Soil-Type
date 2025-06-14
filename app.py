@@ -58,8 +58,14 @@ try:
     readings_collection = db["Readings"]
     client.server_info()
     logging.info("Successfully connected to MongoDB")
-except pymongo.errors.ConnectionError as e:
-    logging.error(f"Failed to connect to MongoDB: {e}")
+except pymongo.errors.ServerSelectionTimeoutError as e:
+    print(f"Connection timed out: {e}")
+    exit(1)
+except pymongo.errors.ConfigurationError as e:
+    print(f"Configuration error: {e}")
+    exit(1)
+except Exception as e:
+    print(f"Unexpected error: {e}")
     exit(1)
 
 # Load ML models
