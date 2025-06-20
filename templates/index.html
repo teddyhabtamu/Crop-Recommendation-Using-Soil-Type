@@ -256,13 +256,23 @@
             border-radius: 1rem;
             padding: 2rem;
             max-width: 90%;
-            width: 600px;
+            width: 800px;
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
             animation: slideIn 0.3s ease;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            border-radius: 0.5rem;
         }
 
         @keyframes slideIn {
@@ -565,9 +575,14 @@
         {% endwith %}
 
         <section class="mb-8 fade-in">
-            <button onclick="requestNewReading()" class="btn-primary w-full sm:w-auto">
-                <i class="fas fa-leaf mr-2"></i> New Sensor Reading
-            </button>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="requestNewReading()" class="btn-primary w-full sm:w-auto">
+                    <i class="fas fa-leaf mr-2"></i> New Sensor Reading
+                </button>
+                <button onclick="showVideoGuide()" class="btn-primary w-full sm:w-auto">
+                    <i class="fas fa-video mr-2"></i> Guide
+                </button>
+            </div>
             <div class="spinner mt-4 mx-auto sm:mx-0" id="loading"></div>
             <p id="error" class="text-red-500 mt-2 hidden"></p>
         </section>
@@ -579,6 +594,10 @@
             </h2>
             <form method="POST" action="{{ url_for('predict') }}" class="card p-6 grid grid-cols-1 md:grid-cols-2 gap-6" id="predictForm">
                 <input type="hidden" name="page" value="{{ current_page }}">
+                <!-- Optional CSRF token if using Flask-WTF -->
+                {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                {% endif %}
                 <div>
                     <label for="Nitrogen" class="input-label">Nitrogen (mg/kg)</label>
                     <input type="number" id="Nitrogen" name="Nitrogen" step="0.01" min="0" max="140" required class="input-field">
@@ -740,6 +759,12 @@
             </div>
         </section>
 
+        <div class="modal" id="videoModal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal()">×</span>
+                <iframe src="https://www.youtube.com/embed/QUqGKeCBP5o" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
         <div class="modal" id="reasonModal">
             <div class="modal-content">
                 <span class="modal-close" onclick="closeModal()">×</span>
@@ -751,71 +776,71 @@
 
     <script>
         async function requestNewReading() {
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        const predictionSection = document.querySelector('.mb-10.fade-in:nth-of-type(2)'); // Selects Prediction Result section
-        const readingsTable = document.getElementById('readingsTable');
-        const mobileReadings = document.querySelector('.mobile-readings');
-        
-        loading.style.display = 'block';
-        error.style.display = 'none';
-        
-        try {
-            const response = await fetch('/request_reading?page={{ current_page }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const predictionSection = document.querySelector('.mb-10.fade-in:nth-of-type(2)'); // Selects Prediction Result section
+            const readingsTable = document.getElementById('readingsTable');
+            const mobileReadings = document.querySelector('.mobile-readings');
             
-            if (response.ok) {
-                // Parse the HTML response
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(await response.text(), 'text/html');
-                
-                // Update Prediction Result section
-                const newPredictionSection = doc.querySelector('.mb-10.fade-in:nth-of-type(2)');
-                if (newPredictionSection) {
-                    predictionSection.innerHTML = newPredictionSection.innerHTML;
-                }
-                
-                // Update readings table
-                const newReadingsTable = doc.getElementById('readingsTable');
-                if (newReadingsTable) {
-                    readingsTable.innerHTML = newReadingsTable.innerHTML;
-                }
-                
-                // Update mobile readings
-                const newMobileReadings = doc.querySelector('.mobile-readings');
-                if (newMobileReadings) {
-                    mobileReadings.innerHTML = newMobileReadings.innerHTML;
-                }
-                
-                // Update pagination
-                const pagination = document.querySelector('.flex.flex-wrap.justify-center.mt-6');
-                const newPagination = doc.querySelector('.flex.flex-wrap.justify-center.mt-6');
-                if (pagination && newPagination) {
-                    pagination.innerHTML = newPagination.innerHTML;
-                }
-                
-                // Reattach event listeners for "Reason" buttons
-                document.querySelectorAll('button[onclick*="showReason"]').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const readingId = button.getAttribute('onclick').match(/'([^']+)'/)[1];
-                        showReason(readingId);
-                    });
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            
+            try {
+                const response = await fetch('/request_reading?page={{ current_page }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
                 });
-            } else {
-                const data = await response.json();
-                error.textContent = data.error || 'Failed to fetch sensor data';
+                
+                if (response.ok) {
+                    // Parse the HTML response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(await response.text(), 'text/html');
+                    
+                    // Update Prediction Result section
+                    const newPredictionSection = doc.querySelector('.mb-10.fade-in:nth-of-type(2)');
+                    if (newPredictionSection) {
+                        predictionSection.innerHTML = newPredictionSection.innerHTML;
+                    }
+                    
+                    // Update readings table
+                    const newReadingsTable = doc.getElementById('readingsTable');
+                    if (newReadingsTable) {
+                        readingsTable.innerHTML = newReadingsTable.innerHTML;
+                    }
+                    
+                    // Update mobile readings
+                    const newMobileReadings = doc.querySelector('.mobile-readings');
+                    if (newMobileReadings) {
+                        mobileReadings.innerHTML = newMobileReadings.innerHTML;
+                    }
+                    
+                    // Update pagination
+                    const pagination = document.querySelector('.flex.flex-wrap.justify-center.mt-6');
+                    const newPagination = doc.querySelector('.flex.flex-wrap.justify-center.mt-6');
+                    if (pagination && newPagination) {
+                        pagination.innerHTML = newPagination.innerHTML;
+                    }
+                    
+                    // Reattach event listeners for "Reason" buttons
+                    document.querySelectorAll('button[onclick*="showReason"]').forEach(button => {
+                        button.addEventListener('click', () => {
+                            const readingId = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                            showReason(readingId);
+                        });
+                    });
+                } else {
+                    const data = await response.json();
+                    error.textContent = data.error || 'Failed to fetch sensor data';
+                    error.style.display = 'block';
+                }
+            } catch (err) {
+                error.textContent = 'Network error: Unable to connect to server';
                 error.style.display = 'block';
+                console.error('Error:', err);
+            } finally {
+                loading.style.display = 'none';
             }
-        } catch (err) {
-            error.textContent = 'Network error: Unable to connect to server';
-            error.style.display = 'block';
-            console.error('Error:', err);
-        } finally {
-            loading.style.display = 'none';
         }
-    }
 
         async function showReason(readingId) {
             const modal = document.getElementById('reasonModal');
@@ -877,9 +902,16 @@
             }
         }
 
+        function showVideoGuide() {
+            const modal = document.getElementById('videoModal');
+            modal.style.display = 'flex';
+        }
+
         function closeModal() {
-            const modal = document.getElementById('reasonModal');
-            modal.style.display = 'none';
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.style.display = 'none';
+            });
         }
 
         const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -944,9 +976,9 @@
                 icon.classList.replace('fa-sun', 'fa-moon');
             }
 
-            const modal = document.getElementById('reasonModal');
+            const modal = document.getElementById('videoModal');
             window.addEventListener('click', e => {
-                if (e.target === modal) {
+                if (e.target === modal || e.target === document.getElementById('reasonModal')) {
                     closeModal();
                 }
             });
@@ -983,6 +1015,12 @@
                     if (!valid) {
                         e.preventDefault();
                         alert('Please enter valid values within the allowed ranges.');
+                    }
+                    // Ensure form submission proceeds if valid
+                    else {
+                        // Optional: Log form data for debugging
+                        const formData = new FormData(predictForm);
+                        console.log('Submitting form data:', Object.fromEntries(formData));
                     }
                 });
                 

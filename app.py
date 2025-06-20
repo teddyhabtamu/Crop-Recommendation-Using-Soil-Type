@@ -424,13 +424,19 @@ def request_reading():
 @login_required
 def predict():
     try:
-        N = float(request.form['Nitrogen'])
-        P = float(request.form['Phosporus'])
-        K = float(request.form['Potassium'])
-        temp = float(request.form['Temperature'])
-        humidity = float(request.form['Humidity'])
-        ph = float(request.form['pH'])
-        page = int(request.form.get('page', 1))
+        # Safely retrieve form data with defaults to avoid KeyError
+        N = float(request.form.get('Nitrogen', '0'))
+        P = float(request.form.get('Phosphorus', '0'))  # Corrected typo from 'Phosporus' to 'Phosphorus'
+        K = float(request.form.get('Potassium', '0'))
+        temp = float(request.form.get('Temperature', '0'))
+        humidity = float(request.form.get('Humidity', '0'))
+        ph = float(request.form.get('pH', '0'))
+        page = int(request.form.get('page', '1'))
+
+        # Validate input ranges (optional, can be moved to client-side if preferred)
+        if not (0 <= N <= 140 and 0 <= P <= 120 and 0 <= K <= 200 and
+                10 <= temp <= 45 and 0 <= humidity <= 100 and 3.5 <= ph <= 9.0):
+            raise ValueError("Input values out of valid range")
 
         feature_list = [N, P, K, temp, humidity, ph]
         single_pred = np.array(feature_list).reshape(1, -1)
@@ -449,7 +455,7 @@ def predict():
         result = f"Top crops: {', '.join(crops)}" if crops != ["Unknown"] else "Could not determine the best crops."
         zipped_results = list(zip(crops, image_files, reasons))
 
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(pytz.utc)
         logging.info(f"Storing manual prediction with timestamp: {timestamp.strftime('%Y-%m-%d %I:%M %p %Z')}")
         readings_collection.insert_one({
             "username": current_user.username,
@@ -479,7 +485,6 @@ def predict():
                 reading['timestamp'] = pytz.utc.localize(reading['timestamp'])
             reading['timestamp'] = reading['timestamp'].astimezone(eat)
 
-        
         return render_template(
             'index.html',
             result=result,
@@ -492,7 +497,11 @@ def predict():
 
     except ValueError as e:
         logging.error(f"Input validation error: {str(e)}")
-        flash(f"Invalid input: Please enter valid numbers.", "error")
+        flash(f"Invalid input: Please enter valid numbers within the allowed ranges.", "error")
+        return redirect(url_for('index', page=request.form.get('page', 1)))
+    except KeyError as e:
+        logging.error(f"Missing form field: {str(e)}")
+        flash(f"Error: Missing required input field. Please try again.", "error")
         return redirect(url_for('index', page=request.form.get('page', 1)))
     except Exception as e:
         logging.error(f"Prediction error: {str(e)}")
